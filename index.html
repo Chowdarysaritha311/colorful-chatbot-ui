@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>🌈 ChatGPT UI</title>
+<link rel="stylesheet" href="style.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+<div class="chat-container">
+    <div class="chat-header">
+        <h2>🌟 My Chatbot</h2>
+    </div>
+    <div id="chatbox"></div>
+    <div class="input-area">
+        <input id="userInput" type="text" placeholder="Type your message..." />
+        <button onclick="sendMessage()"><i class="fas fa-paper-plane"></i></button>
+    </div>
+</div>
+
+<script>
+async function sendMessage() {
+    const input = document.getElementById("userInput");
+    const message = input.value.trim();
+    if (!message) return;
+
+    addMessage(message, "user");
+    input.value = "";
+
+    const responseBox = addMessage("Typing...", "bot");
+
+    try {
+        const res = await fetch("/chat", {
+            method: "POST",
+            headers: {"Content-Type": "application/json"},
+            body: JSON.stringify({message})
+        });
+        const data = await res.json();
+        responseBox.innerText = data.reply;
+    } catch (err) {
+        responseBox.innerText = "⚠️ Error: Server not reachable";
+        console.error(err);
+    }
+}
+
+function addMessage(text, sender) {
+    const box = document.createElement("div");
+    box.className = sender === "user" ? "user-msg" : "bot-msg";
+    box.innerText = text;
+    document.getElementById("chatbox").appendChild(box);
+    box.scrollIntoView({behavior: "smooth"});
+    return box;
+}
+</script>
+</body>
+</html>
